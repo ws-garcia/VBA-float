@@ -5,7 +5,7 @@ This class module is a wrapper that allows to treat numbers as large text string
 
 Despite the above, a representation similar to that of programming languages is adopted (using the `E` symbol instead of the `x10^` characters). A peculiarity that differentiates this implementation from the `float` data type is that it is allowed to obtain a representation (cohort) given a magnitude (exponent) at the user's request, so that the decimal represented can contain a variable number of digits representing its integer part instead of a single digit in the `0-9` range used in computational data types.
 
-As an added value, methods have been integrated to perform calculations on large integers (addition, subtraction, multiplication, division, exponentiation) and to make inferences (comparisons) between values stored in two instances of this class. 
+As an added value, methods have been integrated to perform calculations on large integers and decimals (addition, subtraction, multiplication, division, exponentiation) and to make inferences (comparisons) between values stored in two instances of this class. 
 
 Although `VBAfloat` is not currently focused on performance, the class is capable of delivering computations over a thousand digits in the blink of an eye, thanks to the implementation of high performance routines for three of the four basic operations, with division being the least optimized process in the package.
 
