@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 '#
 '///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-' Copyright © 2022 W. García
+' Copyright Â© 2022 W. GarcÃ­a
 ' GPL-3.0 license | https://www.gnu.org/licenses/gpl-3.0.html/
 ' https://ingwilfredogarcia.wordpress.com
 '///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
             DivSignFlag = GetDivisionSign(DividendSign, DivisordSign)
             LessWordCount = WordCount(B, RadixBaseExponent)         'n
             '@-------------------------------------------------------------------------------
-            ' Hacker’s delight / Henry S. Warren, Jr. -- 2nd ed., 2013
+            ' HackerÂ’s delight / Henry S. Warren, Jr. -- 2nd ed., 2013
             If LessWordCount = 1 Then 'Take care of the case of a single-digit divisor here.
                 MaxWordCount = WordCount(A, RadixBaseExponent)
                 A = PrefixZeros(A, RadixBaseExponent * MaxWordCount - Len(A))
@@ -249,7 +249,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
             Else
                 sfx = RadixBaseExponent * LessWordCount - Len(B)
                 fisrtDivisorWord = CDec(Mid(B, 1, RadixBaseExponent - sfx))
-                If (fisrtDivisorWord - Base / 2) < 0 Then
+                If fisrtDivisorWord < Base / 2 Then
                     scalingFactor = CStr(Fix(CDec(Base) / CDec(Mid(B, 1, RadixBaseExponent - sfx) + 1)))
                     B = IntKBMult(B, scalingFactor)
                     A = IntKBMult(A, scalingFactor)
