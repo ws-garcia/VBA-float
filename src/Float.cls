@@ -765,7 +765,6 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
         k = k - (Abs(ka - kb) + 1)
     End If
     intDiv = BaseCaseDivRem(A, B, cRem, Radix)
-    Me.Create intDiv + SciNotSymbol + CStr(k)
     If Not Zero(cRem) Then 'Expand with remainder division
         If ka + kb >= 30 Then
             rFactor = (ka + kb)
@@ -776,8 +775,10 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
         Set fHelper = New Float
         fHelper.Create BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(-rFactor)
         fHelper.Cohort (0)
-        tmpResult = Me.SignificandIntegerPart + strDot + fHelper.SignificandDecimalPart
+        tmpResult = intDiv + strDot + fHelper.SignificandDecimalPart
         Me.Create tmpResult + SciNotSymbol + CStr(k)
+    Else
+        Me.Create intDiv + SciNotSymbol + CStr(k)
     End If
     'Return
     Set DividedBy = Me
