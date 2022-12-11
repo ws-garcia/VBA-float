@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 '#
 '///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-' Copyright Â© 2022 W. GarcÃ­a
+' Copyright © 2022 W. García
 ' GPL-3.0 license | https://www.gnu.org/licenses/gpl-3.0.html/
 ' https://ingwilfredogarcia.wordpress.com
 '///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
             DivSignFlag = GetDivisionSign(DividendSign, DivisordSign)
             LessWordCount = WordCount(B, RadixBaseExponent)         'n
             '@-------------------------------------------------------------------------------
-            ' HackerÂ’s delight / Henry S. Warren, Jr. -- 2nd ed., 2013
+            ' Hacker’s delight / Henry S. Warren, Jr. -- 2nd ed., 2013
             If LessWordCount = 1 Then 'Take care of the case of a single-digit divisor here.
                 MaxWordCount = WordCount(A, RadixBaseExponent)
                 A = PrefixZeros(A, RadixBaseExponent * MaxWordCount - Len(A))
@@ -249,7 +249,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
             Else
                 sfx = RadixBaseExponent * LessWordCount - Len(B)
                 fisrtDivisorWord = CDec(Mid(B, 1, RadixBaseExponent - sfx))
-                If fisrtDivisorWord < Base / 2 Then
+                If (fisrtDivisorWord - Base / 2) < 0 Then
                     scalingFactor = CStr(Fix(CDec(Base) / CDec(Mid(B, 1, RadixBaseExponent - sfx) + 1)))
                     B = IntKBMult(B, scalingFactor)
                     A = IntKBMult(A, scalingFactor)
@@ -550,13 +550,10 @@ Private Sub ComputeFillCsiNotComp(ByVal StrNum As String)
         StrIntPart = Mid(StrNum, 1, 1)
         If Len(StrNum) >= 2 Then
             StrDecPart = Mid(StrNum, 2)
-        Else
-            StrDecPart = strZero
-        End If
-        If StrDecPart <> strZero Then
             strExponent = CStr(Len(StrDecPart))
         Else
-            strExponent = strZero
+            StrDecPart = strZero
+            strExponent = StrDecPart
         End If
     Else 'There is a decimal point that can be shifted
         StrIntPart = ZeroRemoval(Mid(StrNum, 1, tmpLng - 1))
@@ -602,6 +599,12 @@ Public Function Create(StrNum As String) As Float
     StrNum = UCase(StrNum)
     BolSciNotation = IsPresentSciNotSymbol(StrNum)
     If Validate(StrNum, BolSciNotation) Then
+        If BolSciNotation Then
+            'Convert zeros like "#[.#]E-[#] to 0"
+            If Zero(Mid(StrNum, 1, InStr(1, StrNum, SciNotSymbol) - 1)) Then
+                StrNum = strZero
+            End If
+        End If
         c_ProperlyRepresented = True
         SignAndNumber = SignCut(StrNum)
         StrNum = SignAndNumber(1)
@@ -727,9 +730,9 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     Dim Bfloat As Float
     Dim A As String, B As String
     Dim ka As Long, kb As Long
-    Dim mA As String, mB As String
-    Dim k As String, intDiv As String
-    Dim ldFactor As Long, lFactor As Long
+    Dim mA As Long, mB As Long
+    Dim k As Long, intDiv As String
+    Dim rFactor As Long, cRem As String
     
     Set Bfloat = New Float
     If TypeName(Divisor) <> TypeName(Me) Then
@@ -746,23 +749,33 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     If Bfloat.Sign Then
         B = Minus + B
     End If
-    ldFactor = LenB(A) - LenB(B)
-    If ldFactor < 0 Then
-        lFactor = ldFactor - Len(Bfloat.SignificandIntegerPart) + 1
-        B = Mid(B, 1, Len(B) + lFactor)
-    End If
     'Expansion factors for A and B
     ka = Len(Me.SignificandDecimalPart)
-    kb = Len(Bfloat.SignificandDecimalPart) + lFactor
+    kb = Len(Bfloat.SignificandDecimalPart)
     'Current magnitudes
-    mA = Me.Magnitude
-    mB = Bfloat.Magnitude
+    mA = CLng(Me.Magnitude)
+    mB = CLng(Bfloat.Magnitude)
     'Scaling factor
-    k = IntStrSum(IntStrSum(mA, Minus + mB), Minus + IntStrSum(CStr(ka), Minus + CStr(kb))) '(mA - mB) - (ka - kb)
+    k = (mA - mB) - (ka - kb)
     'Partial division
-    intDiv = BaseCaseDivRem(A, B, c_LastRemainder, Radix)
-    'Return
-    Me.Create intDiv + SciNotSymbol + k
+    Do While AbsGT(B, A)
+        A = SufixZeros(A, 1)
+        k = k - 1
+    Loop
+    intDiv = BaseCaseDivRem(A, B, cRem, Radix)
+    If Not Zero(cRem) Then
+        'Remainder division
+        If ka + kb >= 30 Then
+            rFactor = (ka + kb)
+        Else 'Ensure a 30-digit decimal approximation
+            rFactor = 30
+        End If
+        cRem = SufixZeros(cRem, rFactor)
+        'Return
+        Me.Create intDiv + BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(k - rFactor)
+    Else
+        Me.Create intDiv + SciNotSymbol + CStr(k)
+    End If
     Set DividedBy = Me
 End Function
 
@@ -1663,7 +1676,7 @@ Private Function Validate(ByVal StrNum As String, SciNotation As Boolean) As Boo
             End If
             If Validate Then
                 If n > 0 Then
-                    tmpStr = Mid(StrNum, n, tmpLng - n)
+                    tmpStr = Mid(StrNum, n, Abs(tmpLng - n))
                 Else
                     tmpStr = Mid(StrNum, 1, tmpLng)
                 End If
