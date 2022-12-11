@@ -772,7 +772,7 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
         Else 'Ensure a 30-digit decimal approximation
             rFactor = 30
         End If
-        cRem = SufixZeros(cRem, rFactor)
+        cRem = SufixZeros(cRem, rFactor) 'Scale
         Set fHelper = New Float
         fHelper.Create BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(-rFactor)
         fHelper.Cohort (0)
