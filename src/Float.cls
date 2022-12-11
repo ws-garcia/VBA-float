@@ -733,6 +733,8 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     Dim mA As Long, mB As Long
     Dim k As Long, intDiv As String
     Dim rFactor As Long, cRem As String
+    Dim fHelper As Float
+    Dim tmpResult As String
     
     Set Bfloat = New Float
     If TypeName(Divisor) <> TypeName(Me) Then
@@ -758,24 +760,26 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     'Scaling factor
     k = (mA - mB) - (ka - kb)
     'Partial division
-    Do While AbsGT(B, A)
-        A = SufixZeros(A, 1)
-        k = k - 1
-    Loop
+    If AbsGT(B, A) Then
+        A = SufixZeros(A, Abs(ka - kb) + 1)
+        k = k - (Abs(ka - kb) + 1)
+    End If
     intDiv = BaseCaseDivRem(A, B, cRem, Radix)
-    If Not Zero(cRem) Then
-        'Remainder division
+    Me.Create intDiv + SciNotSymbol + CStr(k)
+    If Not Zero(cRem) Then 'Expand with remainder division
         If ka + kb >= 30 Then
             rFactor = (ka + kb)
         Else 'Ensure a 30-digit decimal approximation
             rFactor = 30
         End If
         cRem = SufixZeros(cRem, rFactor)
-        'Return
-        Me.Create intDiv + BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(k - rFactor)
-    Else
-        Me.Create intDiv + SciNotSymbol + CStr(k)
+        Set fHelper = New Float
+        fHelper.Create BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(-rFactor)
+        fHelper.Cohort (0)
+        tmpResult = Me.SignificandIntegerPart + strDot + fHelper.SignificandDecimalPart
+        Me.Create tmpResult + SciNotSymbol + CStr(k)
     End If
+    'Return
     Set DividedBy = Me
 End Function
 
