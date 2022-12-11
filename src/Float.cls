@@ -740,7 +740,7 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     If TypeName(Divisor) <> TypeName(Me) Then
         Bfloat.Create CStr(Divisor)
     Else
-        Bfloat.Create Divisor.Representation
+        Bfloat.Create2 Divisor.Representation
     End If
     'Integer significants
     A = Me.SignificandIntegerPart + Me.SignificandDecimalPart
@@ -767,7 +767,11 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     intDiv = BaseCaseDivRem(A, B, cRem, Radix)
     If Not Zero(cRem) Then 'Expand with remainder division
         If ka + kb >= 30 Then
-            rFactor = (ka + kb)
+            If ka > kb Then
+                rFactor = ka + 10
+            Else
+                rFactor = kb + 10
+            End If
         Else 'Ensure a 30-digit decimal approximation
             rFactor = 30
         End If
