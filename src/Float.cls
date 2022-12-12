@@ -777,12 +777,12 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
         End If
         cRem = SufixZeros(cRem, rFactor) 'Scale
         Set fHelper = New Float
-        fHelper.Create BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(-rFactor)
+        fHelper.Create2 BaseCaseDivRem(cRem, B, cRem, Radix) + SciNotSymbol + CStr(-rFactor)
         fHelper.Cohort (0)
         tmpResult = intDiv + strDot + fHelper.SignificandDecimalPart
-        Me.Create tmpResult + SciNotSymbol + CStr(k)
+        Me.Create2 tmpResult + SciNotSymbol + CStr(k)
     Else
-        Me.Create intDiv + SciNotSymbol + CStr(k)
+        Me.Create2 intDiv + SciNotSymbol + CStr(k)
     End If
     'Return
     Set DividedBy = Me
@@ -1535,7 +1535,7 @@ Public Function Sum(summand As Variant, Optional Radix As Integer = 28) As Float
     If TypeName(summand) <> TypeName(Me) Then
         Bfloat.Create CStr(summand)
     Else
-        Bfloat.Create summand.Representation
+        Bfloat.Create2 summand.Representation
     End If
     Bfloat.Cohort CLng(Me.Magnitude) 'Equalize A and B exponents by A cohort
     'Calculate the expansion factor for A and B
@@ -1570,7 +1570,7 @@ Public Function Sum(summand As Variant, Optional Radix As Integer = 28) As Float
         intSum = IntStrSum(intSum, decCarry, Radix)
     End If
     'Return
-    Me.Create intSum + strDot + decSum + SciNotSymbol + Me.Magnitude
+    Me.Create2 intSum + strDot + decSum + SciNotSymbol + Me.Magnitude
     Set Sum = Me
 End Function
 
@@ -1607,14 +1607,14 @@ Public Function Times(Operand As Variant, Optional WordSwitch As Integer = 512) 
     Dim Bfloat As Float
     Dim A As String, B As String
     Dim ka As Long, kb As Long
-    Dim mA As String, mB As String
-    Dim k As String, intProd As String
+    Dim mA As Long, mB As Long
+    Dim k As Long, intProd As String
     
     Set Bfloat = New Float
     If TypeName(Operand) <> TypeName(Me) Then
         Bfloat.Create CStr(Operand)
     Else
-        Bfloat.Create Operand.Representation
+        Bfloat.Create2 Operand.Representation
     End If
     'Integer significants
     A = Me.SignificandIntegerPart + Me.SignificandDecimalPart
@@ -1629,14 +1629,14 @@ Public Function Times(Operand As Variant, Optional WordSwitch As Integer = 512) 
     ka = Len(Me.SignificandDecimalPart)
     kb = Len(Bfloat.SignificandDecimalPart)
     'Current magnitudes
-    mA = Me.Magnitude
-    mB = Bfloat.Magnitude
+    mA = CLng(Me.Magnitude)
+    mB = CLng(Bfloat.Magnitude)
     'Scaling factor
-    k = IntStrSum(IntStrSum(mA, mB), Minus + IntStrSum(CStr(ka), CStr(kb))) '(mA + mB) - (ka + kb)
+    k = (mA + mB) - (ka + kb)
     'Partial product
     intProd = IntKBMult(A, B, WordSwitch)
     'Return
-    Me.Create intProd + SciNotSymbol + k
+    Me.Create2 intProd + SciNotSymbol + CStr(k)
     Set Times = Me
 End Function
 
