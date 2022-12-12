@@ -745,12 +745,6 @@ Public Function DividedBy(Divisor As Variant, Optional Radix As Integer = 14) As
     'Integer significants
     A = Me.SignificandIntegerPart + Me.SignificandDecimalPart
     B = Bfloat.SignificandIntegerPart + Bfloat.SignificandDecimalPart
-    If Me.Sign Then
-        A = Minus + A
-    End If
-    If Bfloat.Sign Then
-        B = Minus + B
-    End If
     'Expansion factors for A and B
     ka = Len(Me.SignificandDecimalPart)
     kb = Len(Bfloat.SignificandDecimalPart)
@@ -946,7 +940,7 @@ Private Sub GetSignValue(ByVal tmpStrSign As String)
     tmpSign = ApplyLawOfSigns(tmpStrSign)
     If tmpSign = Minus Then
         c_Sign = True
-    ElseIf StrSign = Plus Then
+    Else
         c_Sign = False
     End If
 End Sub
@@ -1313,11 +1307,6 @@ Public Function Pow(exponent As String) As Float
     k = IntStrSum(IntKBMult(mA, B), Minus + IntKBMult(CStr(ka), B))
     'Partial division
     IntPow = Power(A, B)
-    If Me.Sign Then
-        If Not IsEven(B) Then
-            IntPow = Minus + IntPow
-        End If
-    End If
     'Return
     Me.Create IntPow + SciNotSymbol + k
     Set Pow = Me
@@ -1619,12 +1608,6 @@ Public Function Times(Operand As Variant, Optional WordSwitch As Integer = 512) 
     'Integer significants
     A = Me.SignificandIntegerPart + Me.SignificandDecimalPart
     B = Bfloat.SignificandIntegerPart + Bfloat.SignificandDecimalPart
-    If Me.Sign Then
-        A = Minus + A
-    End If
-    If Bfloat.Sign Then
-        B = Minus + B
-    End If
     'Expansion factors for A and B
     ka = Len(Me.SignificandDecimalPart)
     kb = Len(Bfloat.SignificandDecimalPart)
