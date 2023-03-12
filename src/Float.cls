@@ -205,6 +205,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
     Dim Normalized As Boolean
     Dim qj_ As Variant, qj As String
     Dim scalingFactor As String
+    Dim qj_st As String
     Dim sfx As Long, k As Variant
     Dim TIntcheck As String
     Dim tmpRem As String
@@ -249,7 +250,7 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
             Else
                 sfx = RadixBaseExponent * LessWordCount - Len(B)
                 fisrtDivisorWord = CDec(Mid(B, 1, RadixBaseExponent - sfx))
-                If (fisrtDivisorWord - Base / 2) < 0 Then
+                If fisrtDivisorWord < Base / 2 Then
                     scalingFactor = CStr(Fix(CDec(Base) / CDec(Mid(B, 1, RadixBaseExponent - sfx) + 1)))
                     B = IntKBMult(B, scalingFactor)
                     A = IntKBMult(A, scalingFactor)
@@ -262,7 +263,6 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
                     A = SufixZeros(A, sfx)
                 End If
                 MaxWordCount = WordCount(A, RadixBaseExponent)
-                A = PrefixZeros(A, RadixBaseExponent * MaxWordCount - Len(A))
                 m = MaxWordCount - LessWordCount
                 TIntcheck = SufixZeros(B, m * RadixBaseExponent)
                 BaseReducedByOne = CDec(Base - 1)
@@ -275,23 +275,31 @@ Private Function BaseCaseDivRem(ByVal Dividend As String, ByVal Divisor As Strin
                     Case Else
                         tmpResult = strZero
                 End Select
-                bn = CDec(MidB$(B, 1, 2 * RadixBaseExponent))             'B last word
+                bn = CDec(MidB$(B, 1, 2 * RadixBaseExponent))                   'B last word
                 For jCounter = m - 1 To 0 Step -1
                     qj_ = Fix(CDec(MidB$(A, 1, 4 * RadixBaseExponent - (2 * Delta))) / bn) '2 words by 1 word
                     If qj_ > BaseReducedByOne Then
-                        qj = CStr(BaseReducedByOne)
-                    Else
-                        qj = CStr(qj_)
+                        qj_ = BaseReducedByOne
                     End If
-                    A = IntStrSum(A, Minus + IntKBMult(SufixZeros(qj, jCounter * RadixBaseExponent), B))
+                    A = IntStrSum(A, Minus + IntKBMult(SufixZeros(CStr(qj_), jCounter * RadixBaseExponent), B))
+                    correctionsCount = 0
                     Do While GT(strZero, A)
                         correctionsCount = correctionsCount + 1
                         If correctionInteger = vbNullString Then
                             correctionInteger = SufixZeros(B, jCounter * RadixBaseExponent)
                         End If
-                        qj = IntStrSum(qj, strNegativeOne)
-                        A = IntStrSum(A, correctionInteger)
+                        If correctionsCount = 3 Then
+                            'Get a qj projection
+                            qj_st = QuotientProjection(strZero, CStr(qj_), CStr(qj_), A, correctionInteger)
+                            A = IntStrSum(A, IntKBMult(correctionInteger, IntStrSum(CStr(qj_), Minus + qj_st)))
+                            qj_ = CDec(qj_st)
+                            
+                        Else
+                            qj_ = qj_ - 1
+                            A = IntStrSum(A, correctionInteger)
+                        End If
                     Loop
+                    qj = CStr(qj_)
                     correctionInteger = vbNullString
                     tmpResult = tmpResult + PrefixZeros(qj, RadixBaseExponent - Len(qj))
                     If jCounter Then
