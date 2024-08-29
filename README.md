@@ -1,4 +1,5 @@
 # VBA-float
+[![Mentioned in Awesome VBA](https://awesome.re/mentioned-badge.svg)](https://github.com/sancarn/awesome-vba)
 
 ## Intro
 This class module is a wrapper that allows to treat numbers as large text strings expressed in a variant of scientific notation. 
